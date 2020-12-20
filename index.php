@@ -1,4 +1,6 @@
 <?php
+    define("PI", 3.14159265359);
+
     $name = "Ivan";
     $age = 32;
     $hour = intval(date("H"));
@@ -16,6 +18,7 @@
 <body>
 <p>Имя: <span><?=$name?></span></p>
 <p>Возраст: <span><?=$age?></span></p>
+<p>Число Пи: <span><?=PI?></span></p>
     <img src="images/<? echo ($hour >= 8 && $hour < 20?"day":"night").".jpg"; ?>" alt="картинка" />
 </body>
 </html>
