@@ -16,6 +16,6 @@
 <body>
 <p>Имя: <span><?=$name?></span></p>
 <p>Возраст: <span><?=$age?></span></p>
-    <img src="images/<? echo ($hour > 8 && $hour < 20?"day":"night").".jpg"; ?>" alt="картинка" />
+    <img src="images/<? echo ($hour >= 8 && $hour < 20?"day":"night").".jpg"; ?>" alt="картинка" />
 </body>
 </html>
