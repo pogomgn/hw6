@@ -19,9 +19,11 @@
 </head>
 <body>
 <div id="main" class="hw9 bgcolor<?=$bgcolor?>">
+    <h2>15.01.21</h2>
+        <a href="task1.php" >Перейти</a>
     <h2>1</h2>
     <?
-        // ДЗ от 11.01.21 в предыдущем коммите !!
+
 
         $_SESSION["test"] = 1;
         echo "<p>session['test'] - " . $_SESSION["test"] . "</p>";
