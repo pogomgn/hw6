@@ -1,0 +1,20 @@
+44) Найдите максимальный возраст (колич. лет) среди обучающихся 10 классов ?
+Поля в результирующей таблице:
+max_year
+Используйте конструкцию "as max_year" для указания максимального возраста в годах. Это необходимо для корректной проверки.
+
+select max(year(sysdate()) - year(s.`birthday`)) as max_year from `Student` s, `Student_in_class` sic, `Class` c where s.`id` = sic.`student` and sic.`class` = c.`id` and c.`name` like '10%'
+
+64) Выведите имена всех пар пассажиров, летевших вместе на одном рейсе два или более раз, и количество таких совместных рейсов. В passengerName1 разместите имя пассажира с наименьшим идентификатором.
+Поля в результирующей таблице:
+passengerName1
+passengerName2
+count
+Используйте конструкции "as passengerName1" и "as passengerName2" для вывода имен пассажиров.
+Используйте конструкцию "as count" для агрегатной функции подсчета количества рейсов. Это необходимо для корректной проверки.
+
+select p1.`name` as passengerName1, p2.`name` as passengerName2, if(t1.`c`<t2.`c`, t1.`c`, t2.`c`) as count from (select pit.`Passenger` as p, pit.`Trip` as t, count (*) as c from `Pass_in_trip` pit group by pit.`Passenger`, pit.`Trip` having count(*) > 1) t1, (select pit.`Passenger` as p, pit.`Trip` as t, count (*) as c from `Pass_in_trip` pit group by pit.`Passenger`, pit.`Trip` having count(*) > 1) t2, `Passenger` p1, `Passenger` p2  where t1.`t` = t2.`t` and t1.`p` < t2.`p` and p1.`id` = t1.`p` and p2.`id` = t2.`p`
+
+select p1.`name` as passengerName1, p2.`name` as passengerName2, count (*) as count from (select distinct pit.`Passenger` as p, pit.`trip` as t from (select pit.`Passenger` as p, pit.`Trip` as t, count (*) as c from `Pass_in_trip` pit group by pit.`Passenger`, pit.`Trip` having count(*) > 1) pp, `Pass_in_trip` pit where pit.`Passenger` = pp.`p` and pit.`Trip` = pp.`t`) t1, (select  pit.`Passenger` as p, pit.`trip` as t from (select pit.`Passenger` as p, pit.`Trip` as t, count (*) as c from `Pass_in_trip` pit group by pit.`Passenger`, pit.`Trip` having count(*) > 1) pp, `Pass_in_trip` pit where pit.`Passenger` = pp.`p` and pit.`Trip` = pp.`t`) t2, `Passenger` p1, `Passenger` p2  where t1.`t` = t2.`t` and t1.`p` < t2.`p` and p1.`id` = t1.`p` and p2.`id` = t2.`p` group by 1, 2 
+
+Верный ответ не принимает хоть с агрегатной функцией во внешнем запросе, хоть без. Очень мешает невозможность вывода полей не попавший в group by.  SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY','')); не помогает.
