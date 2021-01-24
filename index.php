@@ -1,62 +1,39 @@
 <?php
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
+    error_reporting(E_ERROR | E_WARNING | E_PARSE);
+    session_set_cookie_params(30800);
+    session_start();
 
-$host = "158.101.162.59";
-$db = "";
-$user = "fact_user";
-$pass = "5kfziSQOnsPCkUA8";
+    $host = "158.101.162.59";
+    $name = "fact_scheme";
+    $user = "fact_user";
+    $pass = "5kfziSQOnsPCkUA8";
 
-$db = new mysqli($host, $user, $pass) or die ("db error");
-$res = $db->query("set names utf8");
-
-function get_table($db_handle, $name, $width = 400, $class = "")
-{
-    $res = "<table style='width: {$width}px;' " . ($class == "" ? "" : " class='$class'") . ">";
-
-    $db_res = $db_handle->query("select * from `$name`;");
-    $fields = $db_res->fetch_fields();
-
-    $res .= "<tr>";
-    for ($i = 0; $i < count($fields); $i++) {
-        $res .= "<td><b>{$fields[$i]->name}</b></td>";
+    if (!$_SESSION["enter"]) {
+        header("Location: login.php");
     }
-    $res .= "</tr>";
-
-    while ($row = $db_res->fetch_assoc()) {
-        $res .= "<tr>";
-        for ($i = 0; $i < count($fields); $i++) {
-            $res .= "<td>{$row[$fields[$i]->name]}</td>";
-        }
-        $res .= "</tr>";
+    if ($_REQUEST["action"] == "exit") {
+        header("Location: login.php");
+        session_destroy();
     }
 
-    $res .= "</table>";
-    return $res;
-}
+    $db = new mysqli($host, $user, $pass) or die ("db error");
+    $db->select_db("fact_scheme");
+    $db->query("set names utf8");
 
-function get_res($res_handle, $width = 400, $class = "")
-{
-    $res = "<table style='width: {$width}px;' " . ($class == "" ? "" : " class='$class'") . ">";
+    $uid = $_SESSION["us_id"];
+    $query1 = "";
+    $res = $db->query("select * from `users` where `id` = $uid;");
+    $f = $res->fetch_assoc();
+    $uname = $f["desc"];
+    $utype = $f["type"];
+    $urig = $f["rig"];
+    ob_end_flush();
 
-    $fields = $res_handle->fetch_fields();
-
-    $res .= "<tr>";
-    for ($i = 0; $i < count($fields); $i++) {
-        $res .= "<td><b>{$fields[$i]->name}</b></td>";
-    }
-    $res .= "</tr>";
-
-    while ($row = $res_handle->fetch_assoc()) {
-        $res .= "<tr>";
-        for ($i = 0; $i < count($fields); $i++) {
-            $res .= "<td>{$row[$fields[$i]->name]}</td>";
-        }
-        $res .= "</tr>";
-    }
-
-    $res .= "</table>";
-    return $res;
-}
+    /*
+     * admin - qwe
+     * user1 - asd
+     * user2 - zxc
+     */
 
 ?>
 <!doctype html>
@@ -66,102 +43,57 @@ function get_res($res_handle, $width = 400, $class = "")
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PHP - document</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/bgcolor.css">
+    <title>Index Page</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
-<style>
-    .tbl {
-        border-collapse: collapse;
-
-    }
-
-    .tbl td {
-        border: 1px solid #000000;
-    }
-</style>
 <body>
 <div id="main" class="hw9">
-    <h2>20.01.21</h2>
-    <h2>1</h2>
-    <?php
+    <div class='container'>
+        <div class="row page-header">
+            <div class="col-lg-6">
+                <h1 class="">22.01.21</h1>
+            </div>
+            <div class="col-lg-6">
+                <div class='btn-group' style="float: right; margin-top: 30px;">
+                    <button class='btn btn-default' id="aname"><?php echo $uname; ?></button>
+                    <a class='btn btn-danger' href="index.php?action=exit">Выход</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        $db->query("CREATE SCHEMA `fact_scheme` DEFAULT CHARACTER SET utf8;");
-        $db->select_db("fact_scheme");
-
-        $db->query("CREATE  TABLE `people` (
-                          `id` INT NOT NULL AUTO_INCREMENT ,
-                          `name` VARCHAR(32) NULL ,
-                          `surname` VARCHAR(64) NULL ,
-                          `age` INT NULL ,
-                          PRIMARY KEY (`id`) )
-                        DEFAULT CHARACTER SET = utf8;
-                    ");
-        $db->query("CREATE  TABLE `hobbies` (
-                          `id` INT NOT NULL AUTO_INCREMENT ,
-                          `name` VARCHAR(64) NULL ,
-                          `description` VARCHAR(256) NULL ,
-                          PRIMARY KEY (`id`) )
-                        DEFAULT CHARACTER SET = utf8;
-                    ");
-        $db->query("CREATE  TABLE `people_hobbies` (
-                          `id` INT NOT NULL AUTO_INCREMENT ,
-                          `people_id` INT NULL ,
-                          `hobby_id` INT NULL ,
-                          PRIMARY KEY (`id`) )
-                        DEFAULT CHARACTER SET = utf8;
-                    ");
-        $db->query("ALTER TABLE `people_hobbies` 
-                          ADD CONSTRAINT `fk_people`
-                          FOREIGN KEY (`people_id` )
-                          REFERENCES `people` (`id` )
-                          ON DELETE CASCADE
-                          ON UPDATE RESTRICT, 
-                          ADD CONSTRAINT `fk_hobbies`
-                          FOREIGN KEY (`hobby_id` )
-                          REFERENCES `hobbies` (`id` )
-                          ON DELETE CASCADE
-                          ON UPDATE RESTRICT
-                        , ADD INDEX `fk_people_idx` (`people_id` ASC) 
-                        , ADD INDEX `fk_hobbies_idx` (`hobby_id` ASC) ;
-                    ");
-        $db->query("INSERT INTO `hobbies`(`id`,`name`,`description`)
-                            VALUES (1,\"Футбол\",\"Играть с мячом, смотреть матчи, болеть за команду\"),
-                            (2,\"Хоккей\",\"Играть с шайбой, смотреть матчи, болеть за команду\"),
-                            (3,\"Чтение\",\"Читать книги, получать знания\");");
-        $db->query("INSERT INTO `people` (`id`,`name`,`surname`, `age`) 
-                            VALUES (1,\"Иван\",\"Иванов\",15),
-                            (2,\"Петр\",\"Петров\",14);");
-        $db->query("INSERT INTO `people_hobbies`
-                            (`people_id`,`hobby_id`)
-                            VALUES
-                            (1,2),(1,3),(2,3),(2,1);");
-
-
-        $res = $db->query("SELECT p.name as 'Имя', p.surname  as 'Фамилия', h.name as 'Хобби'
-                            FROM `people` p
-                            INNER JOIN `people_hobbies` ph ON p.id = ph.people_id
-                            INNER JOIN `hobbies` h ON h.id = ph.hobby_id");
-        echo get_table($db, "hobbies", 400, "tbl")."<br/>";
-        echo get_table($db, "people", 400, "tbl")."<br/>";
-        echo get_table($db, "people_hobbies", 400, "tbl")."<br/>";
-
-        echo get_res($res,500,"tbl");
-
-        echo "<br/>DELETE FROM `people` WHERE `id` = 1;<br/><br/>";
-
-        $db->query("DELETE FROM `people` WHERE `id` = 1;");   // тк внешний ключ каскадом удаляет связанные записи,
-                                                                    // то удалятся записи и из таблицы people_hobbies
-        echo get_table($db, "people", 400, "tbl")."<br/>";
-        echo get_table($db, "hobbies", 400, "tbl")."<br/>";
-
-        $res = $db->query("SELECT p.name as 'Имя', p.surname  as 'Фамилия', h.name as 'Хобби'
-                                FROM `people` p
-                                INNER JOIN `people_hobbies` ph ON p.id = ph.people_id
-                                INNER JOIN `hobbies` h ON h.id = ph.hobby_id");
-
-        echo get_res($res,500,"tbl");
-    ?>
+    <div class='container'>
+        <div class='row'>
+            <div class='col-md-6'>
+                <?php if ($urig > 80): ?>
+                <div class='panel panel-default'>
+                    <div class='panel-heading'>
+                        <input type="text" class="form-control" id="add_user_name" placeholder="User name"
+                               style="float: left; width: 200px;margin-right: 20px;">
+                        <input type="password" class="form-control" id="add_user_pass" placeholder="password"
+                               style="float: left; width: 200px;margin-right: 20px;">
+                        <button type="button" class="btn btn-success" id="add_player_button">Add</button>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+            <div class='col-md-6' id='mainc'>
+                <?php
+                    if (1 == $utype){
+                        echo "You are admin";
+                    } else {
+                        echo "You are user";
+                    }
+                ?>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
