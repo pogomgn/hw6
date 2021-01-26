@@ -1,4 +1,6 @@
 <?php
+    include_once "User.php";
+
     error_reporting(E_ERROR | E_WARNING | E_PARSE);
     session_set_cookie_params(30800);
     session_start();
@@ -21,12 +23,9 @@
     $db->query("set names utf8");
 
     $uid = $_SESSION["us_id"];
-    $query1 = "";
-    $res = $db->query("select * from `users` where `id` = $uid;");
-    $f = $res->fetch_assoc();
-    $uname = $f["desc"];
-    $utype = $f["type"];
-    $urig = $f["rig"];
+    $uname = User::getFullname($uid, $db);
+    $utype = User::getType($uid, $db);
+    $urig = User::getRights($uid, $db);
     ob_end_flush();
 
     /*

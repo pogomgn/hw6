@@ -1,4 +1,6 @@
 <?php
+    include_once "User.php";
+
     $host = "158.101.162.59";
     $name = "fact_scheme";
     $user = "fact_user";
@@ -7,6 +9,8 @@
     $db = new mysqli($host, $user, $pass) or die ("db error");
     $db->select_db("fact_scheme");
     $db->query("set names utf8");
+
+
 	
 	if (isset($_POST["remember"])){
 		if ($_POST["remember"] == true){
@@ -20,12 +24,10 @@
 	session_start();
 	
 	if(isset($_POST['go'])) {
-		$res = $db->query("SELECT * FROM `users` WHERE `name`='".$_REQUEST['login']."';");
-		$f = $res->fetch_assoc();
-		if(($_REQUEST['login']==$f['name']) && (md5($_REQUEST['password'])==$f['password'])) {
+	    User::setLogin($_REQUEST['login']);
+	    if (User::Signin($_REQUEST['password'], $db)){
 			$_SESSION['enter'] = "1";
-			$_SESSION['us_id'] = $f['id'];
-			$_SESSION['right'] = $f['rig'];
+			$_SESSION['us_id'] = User::$user_id;
             echo '<script language="javascript" type="text/javascript">
                 location="index.php" 
             </script>';
